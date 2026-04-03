@@ -1,0 +1,259 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// User-related models
+model User {
+  user_id       Int       @id @default(autoincrement())
+  username      String    @unique
+  email         String    @unique
+  password_hash String
+  is_verified   Boolean   @default(false)
+  created_at    DateTime  @default(now())
+
+  profile       User_Profile?
+  onboarding    User_Onboarding?
+  taste_signals User_Taste_Signal[]
+  dietary_rests FOLLOWS[]
+  recipes       Recipe[]
+  view_logs     Recipe_View_Log[]
+  cooking_logs  Cooking_Log[]
+  boards        Board[]
+}
+
+model User_Profile {
+  profile_id        Int     @id @default(autoincrement())
+  display_name      String?
+  bio               String?
+  profile_image_url String?
+  
+  user_id           Int     @unique
+  user              User    @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
+}
+
+model User_Onboarding {
+  onboarding_id      Int       @id @default(autoincrement())
+  onboarding_version String
+  completed_at       DateTime?
+  is_active          Boolean   @default(true)
+
+  user_id            Int       @unique
+  user               User      @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
+  
+  cuisines           SELECTS[]
+}
+
+model User_Taste_Signal {
+  signal_id   Int      @id @default(autoincrement())
+  signal_type String
+  weight      Float
+  recorded_at DateTime @default(now())
+
+  user_id     Int
+  user        User     @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
+}
+
+// Dietary
+model Dietary_Restriction {
+  restriction_id   Int       @id @default(autoincrement())
+  restriction_name String    @unique
+
+  users            FOLLOWS[]
+  recipes          FITS_DIET[]
+}
+
+model FITS_DIET {
+  recipe_id      Int
+  restriction_id Int
+
+  recipe         Recipe              @relation(fields: [recipe_id], references: [recipe_id], onDelete: Cascade)
+  restriction    Dietary_Restriction @relation(fields: [restriction_id], references: [restriction_id], onDelete: Cascade)
+
+  @@id([recipe_id, restriction_id])
+}
+
+model FOLLOWS {
+  user_id        Int
+  restriction_id Int
+
+  user           User                @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
+  restriction    Dietary_Restriction @relation(fields: [restriction_id], references: [restriction_id], onDelete: Cascade)
+
+  @@id([user_id, restriction_id])
+}
+
+// Cuisine
+model Cuisine {
+  cuisine_id   Int       @id @default(autoincrement())
+  cuisine_name String    @unique
+
+  onboardings  SELECTS[]
+  recipes      Recipe[]
+}
+
+model SELECTS {
+  onboarding_id   Int
+  cuisine_id      Int
+  preference_rank Int
+
+  onboarding      User_Onboarding @relation(fields: [onboarding_id], references: [onboarding_id], onDelete: Cascade)
+  cuisine         Cuisine         @relation(fields: [cuisine_id], references: [cuisine_id], onDelete: Cascade)
+
+  @@id([onboarding_id, cuisine_id])
+}
+
+// Recipes
+model Recipe {
+  recipe_id        Int      @id @default(autoincrement())
+  title            String
+  description      String
+  estimated_time   Int      // in minutes
+  difficulty_level String
+  is_public        Boolean  @default(true)
+  created_at       DateTime @default(now())
+
+  user_id          Int
+  user             User     @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
+
+  cuisine_id       Int?
+  cuisine          Cuisine? @relation(fields: [cuisine_id], references: [cuisine_id], onDelete: SetNull)
+
+  steps            Recipe_Step[]
+  images           Recipe_Image[]
+  view_logs        Recipe_View_Log[]
+  cooking_logs     Cooking_Log[]
+  ingredients      USES[]
+  saved_by         SAVES[]
+  moods            FITS[]
+  diets            FITS_DIET[]
+}
+
+model Recipe_Step {
+  step_number Int
+  instruction String
+
+  recipe_id   Int
+  recipe      Recipe @relation(fields: [recipe_id], references: [recipe_id], onDelete: Cascade)
+
+  @@id([recipe_id, step_number])
+}
+
+model Recipe_Image {
+  image_order Int
+  image_url   String
+  is_primary  Boolean  @default(false)
+  uploaded_at DateTime @default(now())
+
+  recipe_id   Int
+  recipe      Recipe   @relation(fields: [recipe_id], references: [recipe_id], onDelete: Cascade)
+
+  @@id([recipe_id, image_order])
+}
+
+model Recipe_View_Log {
+  view_id   Int      @id @default(autoincrement())
+  viewed_at DateTime @default(now())
+
+  user_id   Int
+  user      User     @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
+
+  recipe_id Int
+  recipe    Recipe   @relation(fields: [recipe_id], references: [recipe_id], onDelete: Cascade)
+}
+
+model Cooking_Log {
+  log_id    Int      @id @default(autoincrement())
+  cooked_at DateTime @default(now())
+
+  user_id   Int
+  user      User     @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
+
+  recipe_id Int
+  recipe    Recipe   @relation(fields: [recipe_id], references: [recipe_id], onDelete: Cascade)
+}
+
+// Ingredients
+model Ingredient {
+  ingredient_id    Int      @id @default(autoincrement())
+  ingredient_name  String   @unique
+  availability_tag String?
+
+  recipes          USES[]
+  
+  // Substitutes relationships
+  AsOriginal       SUBSTITUTES[] @relation("OriginalIngredient")
+  AsSubstitute     SUBSTITUTES[] @relation("SubstituteIngredient")
+}
+
+model USES {
+  quantity      Float
+  unit          String
+
+  recipe_id     Int
+  recipe        Recipe     @relation(fields: [recipe_id], references: [recipe_id], onDelete: Cascade)
+
+  ingredient_id Int
+  ingredient    Ingredient @relation(fields: [ingredient_id], references: [ingredient_id], onDelete: Cascade)
+
+  @@id([recipe_id, ingredient_id])
+}
+
+model SUBSTITUTES {
+  reason                   String?
+  confidence_score         Float    // 0.0 to 1.0
+  explanation              String?
+
+  original_ingredient_id   Int
+  original                 Ingredient @relation("OriginalIngredient", fields: [original_ingredient_id], references: [ingredient_id], onDelete: Cascade)
+
+  substitute_ingredient_id Int
+  substitute               Ingredient @relation("SubstituteIngredient", fields: [substitute_ingredient_id], references: [ingredient_id], onDelete: Cascade)
+
+  @@id([original_ingredient_id, substitute_ingredient_id])
+}
+
+// Boards
+model Board {
+  board_id   Int      @id @default(autoincrement())
+  board_name String
+  visibility String   @default("private") // public or private
+
+  user_id    Int
+  user       User     @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
+
+  recipes    SAVES[]
+}
+
+model SAVES {
+  saved_at  DateTime @default(now())
+
+  board_id  Int
+  board     Board    @relation(fields: [board_id], references: [board_id], onDelete: Cascade)
+
+  recipe_id Int
+  recipe    Recipe   @relation(fields: [recipe_id], references: [recipe_id], onDelete: Cascade)
+
+  @@id([board_id, recipe_id])
+}
+
+// Moods
+model Mood {
+  mood_id   Int      @id @default(autoincrement())
+  mood_name String   @unique
+
+  recipes   FITS[]
+}
+
+model FITS {
+  recipe_id Int
+  recipe    Recipe @relation(fields: [recipe_id], references: [recipe_id], onDelete: Cascade)
+
+  mood_id   Int
+  mood      Mood   @relation(fields: [mood_id], references: [mood_id], onDelete: Cascade)
+
+  @@id([recipe_id, mood_id])
+}

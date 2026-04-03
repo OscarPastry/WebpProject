@@ -1,0 +1,113 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&family=IBM+Plex+Mono:wght@400;500;600;700&family=Work+Sans:wght@300..600&display=swap');
+@import "tailwindcss";
+
+:root {
+  --yellow: #ffe500;
+  --yellow-dim: #dec800;
+  --bg: #fdf9ee;
+  --black: #000000;
+}
+
+@theme inline {
+  --color-background: var(--bg);
+  --color-foreground: var(--black);
+  --font-headline: "Space Grotesk", sans-serif;
+  --font-body: "Work Sans", sans-serif;
+  --font-mono: "IBM Plex Mono", monospace;
+  --radius-DEFAULT: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
+  --radius-full: 9999px;
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--black);
+  font-family: "Work Sans", sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* === BRUTALIST UTILITIES === */
+
+.brutalist-shadow {
+  box-shadow: 4px 4px 0px 0px #000;
+}
+
+.brutalist-shadow-hover {
+  transition: box-shadow 60ms, transform 60ms;
+}
+.brutalist-shadow-hover:hover {
+  box-shadow: 6px 6px 0px 0px #000;
+  transform: translate(-1px, -1px);
+}
+
+.brutalist-card {
+  box-shadow: 4px 4px 0px 0px #000;
+  border: 3px solid #000;
+}
+.brutalist-card:active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0px 0px #000;
+}
+
+.brutalist-btn {
+  box-shadow: 4px 4px 0px 0px #000;
+  border: 3px solid #000;
+  transition: none;
+  font-family: "IBM Plex Mono", monospace;
+  font-weight: 700;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.brutalist-btn:active {
+  transform: translate(4px, 4px);
+  box-shadow: 0px 0px 0px 0px #000;
+}
+
+.font-headline {
+  font-family: "Space Grotesk", sans-serif;
+}
+.font-mono, .font-label {
+  font-family: "IBM Plex Mono", monospace;
+}
+.font-body {
+  font-family: "Work Sans", sans-serif;
+}
+
+/* Stripe top colors for cards */
+.stripe-yellow { background-color: var(--yellow); }
+.stripe-red    { background-color: #b71422; }
+.stripe-blue   { background-color: #363cff; }
+.stripe-black  { background-color: #000; }
+
+/* Tag */
+.db-tag {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  border: 2px solid #000;
+  padding: 2px 8px;
+  background: #ece8dd;
+}
+
+.pk-badge {
+  background: rgba(255,229,0,0.25);
+  border: 2px solid #000;
+  color: #000;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 10px;
+  font-weight: 900;
+  text-transform: uppercase;
+  padding: 2px 6px;
+}
+.fk-badge {
+  background: rgba(54,60,255,0.12);
+  border: 2px solid #363cff;
+  color: #363cff;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 10px;
+  font-weight: 900;
+  text-transform: uppercase;
+  padding: 2px 6px;
+}
