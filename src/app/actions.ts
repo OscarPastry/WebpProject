@@ -25,7 +25,7 @@ export async function login(formData: FormData) {
   }
 
   await setSession(user.user_id, user.username)
-  redirect('/')
+  redirect('/onboarding')
 }
 
 /**
@@ -57,7 +57,7 @@ export async function register(formData: FormData) {
  */
 export async function logout() {
   await clearSession()
-  redirect('/')
+  redirect('/login')
 }
 
 /**

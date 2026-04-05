@@ -3,12 +3,14 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { Clock, ChefHat } from 'lucide-react'
 import { getSession } from '@/lib/auth'
+import { redirect } from 'next/navigation'
 
 const STRIPE_COLORS = ['#ffe500', '#b71422', '#363cff', '#000']
 
 export default async function Home(props: { searchParams: Promise<Record<string, string>> }) {
   const searchParams = await props.searchParams
   const session = await getSession()
+  if (!session) redirect('/login')
   const query = searchParams.search || ''
 
   // 1. Fetch User Preferences if logged in
