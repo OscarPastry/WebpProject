@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Database, Plus, Search, User, LogOut } from 'lucide-react'
+import { Plus, Search, User, LogOut } from 'lucide-react'
 import { getSession } from '@/lib/auth'
 import { logout } from '@/app/actions'
 
@@ -43,7 +43,7 @@ export default async function Navbar() {
             <input 
               name="search"
               type="text" 
-              placeholder="SEARCH THE DB..." 
+              placeholder="SEARCH RECIPES..." 
               className="w-full bg-transparent border-none focus:ring-0 font-mono text-[10px] uppercase pl-10 pr-4 py-2"
             />
           </div>
@@ -80,11 +80,6 @@ export default async function Navbar() {
             </Link>
           </>
         )}
-        
-        <Link href="/db-explorer"
-          className="brutalist-btn bg-[#ffe500] text-black px-4 py-2 text-xs flex items-center gap-2">
-          <Database className="w-3 h-3" /> DB Explorer
-        </Link>
       </div>
     </header>
   )

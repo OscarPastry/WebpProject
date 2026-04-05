@@ -1,11 +1,10 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
-import { StatsFooter } from "@/components/StatsFooter";
 
 export const metadata: Metadata = {
-  title: "FlavorForge — DB Explorer",
-  description: "A brutalist recipe & relational database showcase built for DBMS coursework.",
+  title: "FlavorForge — Recipe Platform",
+  description: "A brutalist recipe platform for discovering and sharing culinary experiments.",
 };
 
 export default function RootLayout({
@@ -21,7 +20,7 @@ export default function RootLayout({
         <main className="flex-1 pt-20 w-full">
           {children}
         </main>
-        <StatsFooter />
+
       </body>
     </html>
   );
