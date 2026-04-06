@@ -155,7 +155,11 @@ export default async function RecipePage({ params }: { params: Promise<{ id: str
               const m = await import('@/lib/auth')
               const s = await m.getSession()
               if (s?.userId) {
-                await prisma.cooking_Log.create({ data: { user_id: s.userId, recipe_id: recipeId } })
+                try {
+                  await prisma.cooking_Log.create({ data: { user_id: s.userId, recipe_id: recipeId } })
+                } catch {
+                  // Already logged or user not found
+                }
               }
             }}>
               <button type="submit" className="brutalist-btn bg-[#ffe500] text-black px-4 py-2 text-xs flex items-center gap-1">

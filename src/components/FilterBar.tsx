@@ -1,0 +1,96 @@
+'use client'
+
+import { useState } from 'react'
+import Link from 'next/link'
+import { Filter, X } from 'lucide-react'
+
+export default function FilterBar({ cuisines, moods, searchParams, activeFilters }: {
+  cuisines: { cuisine_name: string }[]
+  moods: { mood_name: string }[]
+  searchParams: Record<string, string>
+  activeFilters: { key: string; value: string }[]
+}) {
+  const [isOpen, setIsOpen] = useState(false)
+
+  const buildUrl = (key: string, value: string) => {
+    const params = new URLSearchParams(searchParams)
+    if (params.get(key) === value) params.delete(key)
+    else params.set(key, value)
+    return `/${params.toString() ? '?' + params.toString() : ''}`
+  }
+
+  return (
+    <div className="mt-6">
+      <div className="flex items-center gap-2 flex-wrap">
+        {activeFilters.map(f => (
+          <Link key={f.key} href={buildUrl(f.key, f.value)}
+            className="flex items-center gap-1 font-mono text-[10px] font-black uppercase bg-black text-[#ffe500] border-2 border-black px-3 py-1.5">
+            {f.key}: {f.value}
+            <X className="w-3 h-3" />
+          </Link>
+        ))}
+        <button onClick={() => setIsOpen(!isOpen)}
+          className={`brutalist-btn flex items-center gap-2 px-4 py-2 text-xs ${isOpen ? 'bg-[#ffe500] text-black' : 'bg-black text-[#ffe500]'}`}>
+          <Filter className="w-4 h-4" />
+          Filters
+          {activeFilters.length > 0 && (
+            <span className="bg-[#b71422] text-white text-[9px] font-black w-5 h-5 flex items-center justify-center rounded-full">
+              {activeFilters.length}
+            </span>
+          )}
+        </button>
+      </div>
+
+      {isOpen && (
+        <div className="mt-4 brutalist-card bg-[#fdf9ee] overflow-hidden border-[3px] border-black">
+          <div className="h-3 bg-[#ffe500] border-b-[3px] border-black" />
+          <div className="p-6 space-y-5">
+            <div>
+              <label className="block font-mono font-black text-xs uppercase mb-2 text-black/70">Difficulty</label>
+              <div className="flex gap-2 flex-wrap">
+                {['Easy', 'Medium', 'Hard'].map(d => (
+                  <Link key={d} href={buildUrl('difficulty', d)}
+                    className={`brutalist-btn px-4 py-1.5 text-xs ${searchParams.difficulty === d ? 'bg-[#ffe500] text-black' : 'bg-white text-black'}`}>
+                    {d}
+                  </Link>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <label className="block font-mono font-black text-xs uppercase mb-2 text-black/70">Cuisine</label>
+              <div className="flex gap-2 flex-wrap">
+                {cuisines.map(c => (
+                  <Link key={c.cuisine_name} href={buildUrl('cuisine', c.cuisine_name)}
+                    className={`brutalist-btn px-4 py-1.5 text-xs ${searchParams.cuisine === c.cuisine_name ? 'bg-[#363cff] text-white' : 'bg-white text-black'}`}>
+                    {c.cuisine_name}
+                  </Link>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <label className="block font-mono font-black text-xs uppercase mb-2 text-black/70">Mood</label>
+              <div className="flex gap-2 flex-wrap">
+                {moods.map(m => (
+                  <Link key={m.mood_name} href={buildUrl('mood', m.mood_name)}
+                    className={`brutalist-btn px-4 py-1.5 text-xs ${searchParams.mood === m.mood_name ? 'bg-[#b71422] text-white' : 'bg-white text-black'}`}>
+                    {m.mood_name}
+                  </Link>
+                ))}
+              </div>
+            </div>
+
+            {activeFilters.length > 0 && (
+              <div className="pt-3 border-t-[2px] border-black">
+                <Link href="/" className="brutalist-btn bg-black text-[#ffe500] px-4 py-2 text-xs">
+                  Clear All Filters
+                </Link>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}

@@ -34,15 +34,15 @@ export async function login(formData: FormData) {
 export async function register(formData: FormData) {
   const username = formData.get('username') as string
   const email = formData.get('email') as string
-
+  const displayName = formData.get('display_name') as string
 
   try {
     const user = await prisma.user.create({
       data: {
         username,
         email,
-        password_hash: 'password123', // Simple for demo
-        profile: { create: { display_name: username } }
+        password_hash: 'password123',
+        profile: { create: { display_name: displayName || username } }
       }
     })
     await setSession(user.user_id, user.username)
@@ -110,6 +110,37 @@ export async function saveOnboarding(cuisines: string[], restrictions: string[])
 
   revalidatePath('/')
   return { success: true }
+}
+
+/**
+ * PROFILE: Update user profile
+ */
+export async function updateProfile(formData: FormData) {
+  const session = await getSession()
+  if (!session) return redirect('/login')
+
+  const displayName = formData.get('display_name') as string
+  const bio = formData.get('bio') as string
+  const profileImageUrl = formData.get('profile_image_url') as string
+
+  await prisma.user_Profile.upsert({
+    where: { user_id: session.userId },
+    update: {
+      display_name: displayName || null,
+      bio: bio || null,
+      profile_image_url: profileImageUrl || null,
+    },
+    create: {
+      user_id: session.userId,
+      display_name: displayName || null,
+      bio: bio || null,
+      profile_image_url: profileImageUrl || null,
+    },
+  })
+
+  revalidatePath(`/profile/${session.username}`)
+  revalidatePath('/chefs')
+  redirect(`/profile/${session.username}`)
 }
 
 /**

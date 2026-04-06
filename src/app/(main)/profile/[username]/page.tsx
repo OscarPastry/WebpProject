@@ -4,9 +4,12 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 import { BookOpen, Eye, Flame, ChefHat, Clock } from 'lucide-react'
+import { getSession } from '@/lib/auth'
+import EditProfileButton from '@/components/EditProfileButton'
 
 export default async function ProfilePage({ params }: { params: Promise<{ username: string }> }) {
   const { username } = await params
+  const session = await getSession()
 
   const user = await prisma.user.findUnique({
     where: { username },
@@ -25,6 +28,8 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
   const totalViews = await prisma.recipe_View_Log.count({ where: { recipe: { user_id: user.user_id } } })
   const maxWeight = Math.max(...user.taste_signals.map(s => s.weight), 1)
 
+  const isOwnProfile = session?.username === username
+
   return (
     <div className="max-w-5xl mx-auto px-6 py-10 space-y-10">
       {/* Profile hero */}
@@ -32,16 +37,30 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
         <div className="h-4 bg-black border-b-[3px] border-black" />
         <div className="p-8 flex flex-col md:flex-row gap-6 items-start">
           {/* Avatar */}
-          <div className="w-20 h-20 shrink-0 border-[3px] border-black flex items-center justify-center font-headline font-black text-4xl bg-[#ffe500]">
-            {(user.profile?.display_name || user.username).charAt(0).toUpperCase()}
-          </div>
+          {user.profile?.profile_image_url ? (
+            <div className="w-20 h-20 shrink-0 border-[3px] border-black overflow-hidden bg-[#ece8dd]">
+              <Image src={user.profile.profile_image_url} alt={user.profile.display_name || username}
+                width={80} height={80} className="w-full h-full object-cover" />
+            </div>
+          ) : (
+            <div className="w-20 h-20 shrink-0 border-[3px] border-black flex items-center justify-center font-headline font-black text-4xl bg-[#ffe500]">
+              {(user.profile?.display_name || user.username).charAt(0).toUpperCase()}
+            </div>
+          )}
           <div className="flex-1">
-            <p className="font-mono text-[10px] uppercase text-black/40 font-black">Profile</p>
-            <h1 className="font-headline font-black text-4xl uppercase tracking-tighter leading-none">
-              {user.profile?.display_name || user.username}
-            </h1>
-            <p className="font-mono text-sm text-black/50 mt-1">@{user.username}</p>
-            {user.profile?.bio && <p className="font-body text-base text-black/70 mt-3">{user.profile.bio}</p>}
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="font-mono text-[10px] uppercase text-black/40 font-black">Profile</p>
+                <h1 className="font-headline font-black text-4xl uppercase tracking-tighter leading-none">
+                  {user.profile?.display_name || user.username}
+                </h1>
+                <p className="font-mono text-sm text-black/50 mt-1">@{user.username}</p>
+                {user.profile?.bio && <p className="font-body text-base text-black/70 mt-3">{user.profile.bio}</p>}
+              </div>
+              {isOwnProfile && (
+                <EditProfileButton username={username} />
+              )}
+            </div>
           </div>
         </div>
 

@@ -1,7 +1,7 @@
 
 import { register } from '@/app/actions'
 import Link from 'next/link'
-import { User, Mail, KeyRound } from 'lucide-react'
+import { User, Mail, KeyRound, UserCircle } from 'lucide-react'
 
 export default function RegisterPage() {
   const fieldClass = "w-full bg-white border-[3px] border-black font-mono text-sm pl-12 pr-4 py-3 focus:outline-none focus:ring-0 focus:border-black uppercase placeholder:text-black/20"
@@ -20,10 +20,17 @@ export default function RegisterPage() {
         <div className="h-4 bg-[#363cff] border-b-[3px] border-black" />
         <form action={register} className="p-8 space-y-6">
           <div>
+            <label className={labelClass}>Display Name</label>
+            <div className="relative">
+              <UserCircle className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-black/30" />
+              <input name="display_name" required type="text" className={fieldClass} placeholder="Chef Mario" />
+            </div>
+          </div>
+          <div>
             <label className={labelClass}>Username</label>
             <div className="relative">
               <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-black/30" />
-              <input name="username" required type="text" className={fieldClass} placeholder="chef_newbie" />
+              <input name="username" required type="text" className={fieldClass} placeholder="chef_mario" />
             </div>
           </div>
           <div>

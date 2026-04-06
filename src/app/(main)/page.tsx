@@ -4,6 +4,7 @@ import Image from 'next/image'
 import { Clock, ChefHat } from 'lucide-react'
 import { getSession } from '@/lib/auth'
 import { redirect } from 'next/navigation'
+import FilterBar from '@/components/FilterBar'
 
 const STRIPE_COLORS = ['#ffe500', '#b71422', '#363cff', '#000']
 
@@ -13,7 +14,12 @@ export default async function Home(props: { searchParams: Promise<Record<string,
   if (!session) redirect('/login')
   const query = searchParams.search || ''
 
-  // 1. Fetch User Preferences if logged in
+  const cuisines = await prisma.cuisine.findMany({ orderBy: { cuisine_name: 'asc' } })
+  const moods = await prisma.mood.findMany({ orderBy: { mood_name: 'asc' } })
+
+  const activeCuisine = searchParams.cuisine || ''
+  const activeMood = searchParams.mood || ''
+
   let preferredCuisineIds: number[] = []
   let mustFollowRestrictionIds: number[] = []
 
@@ -32,27 +38,34 @@ export default async function Home(props: { searchParams: Promise<Record<string,
     }
   }
 
-  // 2. Fetch all public recipes with necessary joins
+  const whereClause: Record<string, unknown> = { is_public: true }
+  if (searchParams.difficulty) whereClause.difficulty_level = searchParams.difficulty
+  if (activeCuisine) {
+    const cuisine = cuisines.find(c => c.cuisine_name === activeCuisine)
+    if (cuisine) whereClause.cuisine_id = cuisine.cuisine_id
+  }
+  if (activeMood) {
+    const mood = moods.find(m => m.mood_name === activeMood)
+    if (mood) whereClause.moods = { some: { mood_id: mood.mood_id } }
+  }
+  if (query) {
+    whereClause.OR = [
+      { title: { contains: query, mode: 'insensitive' } },
+      { description: { contains: query, mode: 'insensitive' } }
+    ]
+  }
+
   const allRecipes = await prisma.recipe.findMany({
-    where: {
-      is_public: true,
-      ...(searchParams.difficulty ? { difficulty_level: searchParams.difficulty } : {}),
-      ...(query ? {
-        OR: [
-          { title: { contains: query, mode: 'insensitive' } },
-          { description: { contains: query, mode: 'insensitive' } }
-        ]
-      } : {})
-    },
+    where: whereClause,
     include: {
       images: true,
       moods: { include: { mood: true } },
       user: { include: { profile: true } },
-      diets: { include: { restriction: true } }
+      diets: { include: { restriction: true } },
+      cuisine: true
     }
   })
 
-  // 3. Filter and Score for Personalization
   let recipes = allRecipes
 
   if (session && mustFollowRestrictionIds.length > 0) {
@@ -62,31 +75,33 @@ export default async function Home(props: { searchParams: Promise<Record<string,
     })
   }
 
-  // 4. Sort by score
   recipes.sort((a, b) => {
     let scoreA = 0
     let scoreB = 0
 
-    // Boost based on rank in preferredCuisines
     if (a.cuisine_id && preferredCuisineIds.includes(a.cuisine_id)) {
       const rank = preferredCuisineIds.indexOf(a.cuisine_id)
-      scoreA += (100 - rank * 20) // Top rank gets 100, 2nd gets 80, etc.
+      scoreA += (100 - rank * 20)
     }
     if (b.cuisine_id && preferredCuisineIds.includes(b.cuisine_id)) {
       const rank = preferredCuisineIds.indexOf(b.cuisine_id)
       scoreB += (100 - rank * 20)
     }
 
-    // Secondary sort by date
     if (scoreA === scoreB) {
       return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
     }
     return scoreB - scoreA
   })
 
+  const activeFilters = [
+    ...(searchParams.difficulty ? [{ key: 'difficulty', value: searchParams.difficulty }] : []),
+    ...(activeCuisine ? [{ key: 'cuisine', value: activeCuisine }] : []),
+    ...(activeMood ? [{ key: 'mood', value: activeMood }] : []),
+  ]
+
   return (
     <div className="max-w-7xl mx-auto px-6 py-10 space-y-10">
-      {/* Hero Header */}
       <section className="border-b-[6px] border-black pb-6">
         <div className="flex justify-between items-end">
           <div>
@@ -104,22 +119,10 @@ export default async function Home(props: { searchParams: Promise<Record<string,
             {session && <p className="font-mono text-[9px] uppercase text-[#22c55e] font-black">Preferences Synchronized ✓</p>}
           </div>
         </div>
-        
-        {/* Filters */}
-        <div className="flex gap-2 mt-6 flex-wrap">
-          {['Easy', 'Medium', 'Hard'].map(d => (
-            <Link key={d} href={`/?difficulty=${d}`}
-              className={`brutalist-btn px-4 py-1.5 text-xs ${searchParams.difficulty === d ? 'bg-[#ffe500] text-black' : 'bg-white text-black'}`}>
-              {d}
-            </Link>
-          ))}
-          <Link href="/" className="brutalist-btn px-4 py-1.5 text-xs bg-black text-[#ffe500]">
-            Clear
-          </Link>
-        </div>
+
+        <FilterBar cuisines={cuisines} moods={moods} searchParams={searchParams} activeFilters={activeFilters} />
       </section>
 
-      {/* Recipe Grid */}
       {recipes.length === 0 ? (
         <div className="brutalist-card p-16 text-center">
           <p className="font-mono uppercase text-black/50">No experiments found.</p>
@@ -132,10 +135,8 @@ export default async function Home(props: { searchParams: Promise<Record<string,
               <Link key={recipe.recipe_id} href={`/recipe/${recipe.recipe_id}`}
                 className="group block">
                 <div className="brutalist-card brutalist-shadow-hover bg-[#fdf9ee] flex flex-col h-full">
-                  {/* Color stripe */}
                   <div className="h-4 border-b-[3px] border-black" style={{ background: stripe }} />
 
-                  {/* Image */}
                   <div className="relative h-56 overflow-hidden border-b-[3px] border-black">
                     {recipe.images[0] ? (
                       <Image src={recipe.images[0].image_url} alt={recipe.title} width={800} height={600}
@@ -150,7 +151,6 @@ export default async function Home(props: { searchParams: Promise<Record<string,
                     </div>
                   </div>
 
-                  {/* Content */}
                   <div className="p-6 flex flex-col flex-1">
                     <h3 className="font-headline font-extrabold text-2xl leading-none uppercase tracking-tighter mb-4">
                       {recipe.title}
@@ -159,6 +159,9 @@ export default async function Home(props: { searchParams: Promise<Record<string,
                     <div className="flex gap-2 flex-wrap mb-4">
                       <span className="db-tag">Difficulty: {recipe.difficulty_level}</span>
                       <span className="db-tag">Time: {recipe.estimated_time}m</span>
+                      {recipe.cuisine && (
+                        <span className="db-tag bg-[#363cff] text-white">{recipe.cuisine.cuisine_name}</span>
+                      )}
                     </div>
 
                     <div className="flex gap-1 flex-wrap mb-4">

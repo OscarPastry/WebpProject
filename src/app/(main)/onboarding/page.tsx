@@ -136,6 +136,10 @@ export default function OnboardingPage() {
 
         {/* Nav buttons */}
         <div className="flex justify-between border-t-[3px] border-black">
+          <button onClick={() => window.location.href = '/'}
+            className="brutalist-btn bg-white text-black/40 px-6 py-4 text-sm border-0 flex items-center gap-2 hover:text-black">
+            Skip
+          </button>
           {step > 0 ? (
             <button onClick={() => setStep(s => s - 1)}
               className="brutalist-btn bg-white text-black px-6 py-4 text-sm border-0 border-r-[3px] border-t-0 border-b-0 border-black flex items-center gap-2">
