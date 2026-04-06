@@ -28,6 +28,7 @@ export default async function Navbar() {
             className="text-black/70 font-mono font-medium text-sm uppercase hover:bg-[#ffe500] hover:text-black px-3 py-1 transition-none border-r border-black/10">
             Chefs
           </Link>
+
           <Link href="/admin/ingredients"
             className="text-black/70 font-mono font-medium text-sm uppercase hover:bg-[#ffe500] hover:text-black px-3 py-1 transition-none">
             Ingredients

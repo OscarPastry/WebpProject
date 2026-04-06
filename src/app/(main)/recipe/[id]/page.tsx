@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation'
 import { Clock, ChefHat, CheckCircle2, AlertTriangle } from 'lucide-react'
 import { getSession } from '@/lib/auth'
 import Image from 'next/image'
+import FindNearbyButton from '@/components/FindNearbyButton'
 
 export default async function RecipePage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = await params
@@ -93,6 +94,9 @@ export default async function RecipePage({ params }: { params: Promise<{ id: str
           <div className="flex items-center gap-2 font-mono font-black text-sm uppercase">
             <AlertTriangle className="w-4 h-4" /> {recipe.difficulty_level}
           </div>
+          {recipe.cuisine && (
+            <FindNearbyButton cuisine={recipe.cuisine.cuisine_name} recipeTitle={recipe.title} />
+          )}
           <div className="ml-auto font-mono text-sm uppercase text-black/50">
             By <span className="text-black font-bold">{recipe.user.profile?.display_name || recipe.user.username}</span>
           </div>
