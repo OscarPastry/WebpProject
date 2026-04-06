@@ -218,8 +218,27 @@ async function main() {
     { title: 'Lemon Herb Roasted Chicken', description: 'Whole roasted chicken infused with lemon and fresh herbs.', time: 90, diff: 'Easy', user: users[5], moods: [comfort, festive], cuisine: french, diets: [glutenFree, dairyFree, nut_free, lowCarb, keto, halal] },
   ]
 
+  const recipeImages = [
+    'https://www.southernliving.com/thmb/QvacOweW0h5jwaq9PHVNF9T9SAQ%3D/1500x0/filters%3Ano_upscale%28%29%3Amax_bytes%28150000%29%3Astrip_icc%28%29/27901_SUPT_TomBasil_Tomato-Basil-Pasta_100-b0d8a3b38cdb414ba6fc4c49e407caca.jpg',
+    'https://www.recipetineats.com/tachyon/2018/04/Chicken-Tikka-Masala_0-SQ.jpg',
+    'https://images.squarespace-cdn.com/content/v1/5ed666a6924cd0017d343b01/1593466332546-0FAWQJ5DT3ZMVIRO9H38/bite-me-more-apple-teriyaki-salmon-rice-bowl-recipe.jpg',
+    'https://culinarybackstreets.s3.us-east-2.amazonaws.com/culinarybackstreets/uploads/CB_CDMX_Pastor_AR_top.jpg',
+    'https://d2vbr83hnyiux1.cloudfront.net/image/975050285728/image_atp7qrie9p53l3b07mc9sg3q76/-FWEBP',
+    'https://images.squarespace-cdn.com/content/v1/543dc236e4b0fffb45747ede/1468362338384-44ZLQXQ82J3DTRBY2TMU/image-asset.jpeg',
+    'https://i.pinimg.com/736x/12/a7/ec/12a7eca2596695d2185a884f6ca2daed.jpg',
+    'https://www.sbfoods-worldwide.com/recipes/eaq25q0000001bar-img/7_ColorfulvegeCurry_recipe.jpg',
+    'https://media.hellofresh.com/q_100%2Cw_3840%2Cf_auto%2Cc_limit%2Cfl_lossy/recipes/image/garlic-butter-shrimp-scampi-9604b5c4.jpg',
+    'https://ucarecdn.com/a562b1ce-47bc-42b8-8a0c-c05bee7bf7e4/',
+    'https://del.h-cdn.co/assets/16/19/1600x1200/sd-aspect-1463087916-delish-sticky-honey-garlic-chicken.jpg',
+    'https://www.onceuponachef.com/images/2019/02/french-onion-soup-1.jpg',
+    'https://img.taste.com.au/K6hHHVrQ/taste/2024/12/healthy-chicken-breast-coconut-mango-curry-4-205852-1.jpg',
+    'https://www.extraingredient.com/uploads/image-recipe-temaki-sushi-handrolls.jpg',
+    'https://www.foodandwine.com/thmb/t9YqzGbmH-huAbV6xitCQs0-G4s%3D/1500x0/filters%3Ano_upscale%28%29%3Amax_bytes%28150000%29%3Astrip_icc%28%29/FAW-recipes-herb-and-lemon-roasted-chicken-hero-c4ba0aec56884683be482c47b1e1df11.jpg',
+  ]
+
   const recipes = []
-  for (const r of recipeData) {
+  for (let i = 0; i < recipeData.length; i++) {
+    const r = recipeData[i]
     const recipe = await prisma.recipe.create({
       data: {
         title: r.title, description: r.description,
@@ -242,10 +261,10 @@ async function main() {
       { recipe_id: recipe.recipe_id, step_number: 2, instruction: `Cook the main components following the recipe technique. Apply heat appropriately.` },
       { recipe_id: recipe.recipe_id, step_number: 3, instruction: `Plate beautifully and season to taste. Serve immediately and enjoy!` },
     ]})
-    // Add placeholder image
+    // Add recipe image
     await prisma.recipe_Image.create({
       data: { recipe_id: recipe.recipe_id, image_order: 1, is_primary: true,
-        image_url: `https://picsum.photos/seed/${encodeURIComponent(r.title)}/800/600` }
+        image_url: recipeImages[i] }
     })
     recipes.push(recipe)
   }

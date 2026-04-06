@@ -113,6 +113,99 @@ export async function saveOnboarding(cuisines: string[], restrictions: string[])
 }
 
 /**
+ * RECIPE: Create new recipe
+ */
+export async function createRecipe(formData: FormData) {
+  const session = await getSession()
+  if (!session) return redirect('/login')
+
+  const title = formData.get('title') as string
+  const description = formData.get('description') as string
+  const estimated_time = parseInt(formData.get('estimated_time') as string)
+  const difficulty = formData.get('difficulty') as string
+  const cuisineName = formData.get('cuisine') as string | null
+  const imagesJson = formData.get('images') as string | null
+  const ingredientsJson = formData.get('ingredients') as string | null
+  const stepsJson = formData.get('steps') as string | null
+  const moodsJson = formData.get('moods') as string | null
+  const dietsJson = formData.get('diets') as string | null
+
+  const images: string[] = imagesJson ? JSON.parse(imagesJson) : []
+  const ingredients: { name: string; quantity: number; unit: string }[] = ingredientsJson ? JSON.parse(ingredientsJson) : []
+  const steps: { step_number: number; instruction: string }[] = stepsJson ? JSON.parse(stepsJson) : []
+  const moods: string[] = moodsJson ? JSON.parse(moodsJson) : []
+  const diets: string[] = dietsJson ? JSON.parse(dietsJson) : []
+
+  let cuisineId: number | null = null
+  if (cuisineName) {
+    const cuisine = await prisma.cuisine.upsert({
+      where: { cuisine_name: cuisineName },
+      update: {},
+      create: { cuisine_name: cuisineName }
+    })
+    cuisineId = cuisine.cuisine_id
+  }
+
+  const recipe = await prisma.recipe.create({
+    data: {
+      title,
+      description,
+      estimated_time,
+      difficulty_level: difficulty,
+      user_id: session.userId,
+      cuisine_id: cuisineId,
+      images: images.length > 0
+        ? { create: images.map((url, i) => ({ image_url: url, image_order: i + 1, is_primary: i === 0 })) }
+        : undefined,
+      steps: steps.length > 0
+        ? { create: steps.map(s => ({ step_number: s.step_number, instruction: s.instruction })) }
+        : undefined,
+    }
+  })
+
+  for (const ing of ingredients) {
+    const ingredient = await prisma.ingredient.upsert({
+      where: { ingredient_name: ing.name },
+      update: {},
+      create: { ingredient_name: ing.name }
+    })
+    await prisma.uSES.create({
+      data: {
+        recipe_id: recipe.recipe_id,
+        ingredient_id: ingredient.ingredient_id,
+        quantity: ing.quantity,
+        unit: ing.unit
+      }
+    })
+  }
+
+  for (const moodName of moods) {
+    const mood = await prisma.mood.upsert({
+      where: { mood_name: moodName },
+      update: {},
+      create: { mood_name: moodName }
+    })
+    await prisma.fITS.create({
+      data: { recipe_id: recipe.recipe_id, mood_id: mood.mood_id }
+    })
+  }
+
+  for (const dietName of diets) {
+    const diet = await prisma.dietary_Restriction.upsert({
+      where: { restriction_name: dietName },
+      update: {},
+      create: { restriction_name: dietName }
+    })
+    await prisma.fITS_DIET.create({
+      data: { recipe_id: recipe.recipe_id, restriction_id: diet.restriction_id }
+    })
+  }
+
+  revalidatePath('/')
+  redirect(`/recipe/${recipe.recipe_id}`)
+}
+
+/**
  * BOARD: Save recipe
  */
 export async function saveToBoard(formData: FormData) {
