@@ -58,7 +58,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
                 {user.profile?.bio && <p className="font-body text-base text-black/70 mt-3">{user.profile.bio}</p>}
               </div>
               {isOwnProfile && (
-                <EditProfileButton username={username} />
+                <EditProfileButton />
               )}
             </div>
           </div>
