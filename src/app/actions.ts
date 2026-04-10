@@ -252,3 +252,35 @@ export async function saveToBoard(formData: FormData) {
         // Already saved
     }
 }
+
+/**
+ * REVIEW: Submit or update a recipe review
+ */
+export async function submitReview(formData: FormData) {
+  const session = await getSession()
+  if (!session) return redirect('/login')
+
+  const recipeId = parseInt(formData.get('recipeId') as string)
+  const rating = parseInt(formData.get('rating') as string)
+  const comment = formData.get('comment') as string || null
+
+  if (isNaN(recipeId) || isNaN(rating) || rating < 1 || rating > 5) return
+
+  await prisma.review.upsert({
+    where: {
+      user_id_recipe_id: {
+        user_id: session.userId,
+        recipe_id: recipeId
+      }
+    },
+    update: { rating, comment },
+    create: {
+      user_id: session.userId,
+      recipe_id: recipeId,
+      rating,
+      comment
+    }
+  })
+
+  revalidatePath(`/recipe/${recipeId}`)
+}

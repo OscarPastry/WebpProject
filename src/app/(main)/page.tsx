@@ -1,7 +1,7 @@
 import { prisma } from '@/lib/prisma'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Clock, ChefHat } from 'lucide-react'
+import { Clock, ChefHat, Star } from 'lucide-react'
 import { getSession } from '@/lib/auth'
 import { redirect } from 'next/navigation'
 import FilterBar from '@/components/FilterBar'
@@ -62,7 +62,8 @@ export default async function Home(props: { searchParams: Promise<Record<string,
       moods: { include: { mood: true } },
       user: { include: { profile: true } },
       diets: { include: { restriction: true } },
-      cuisine: true
+      cuisine: true,
+      reviews: true,
     }
   })
 
@@ -102,20 +103,20 @@ export default async function Home(props: { searchParams: Promise<Record<string,
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-10 space-y-10">
-      <section className="border-b-[6px] border-black pb-6">
+      <section className="border-b-[6px] border-[var(--border)] pb-6">
         <div className="flex justify-between items-end">
           <div>
-            <p className="font-mono text-xs uppercase font-black text-[#363cff] mb-2">
+            <p className="font-mono text-xs uppercase font-black text-[var(--blue)] mb-2">
               {session ? `// PERSONALIZED_FEED_FOR_${session.username.toUpperCase()}` : '// GLOBAL_RESEARCH_FEED'}
             </p>
-            <h1 className="font-headline font-black text-6xl lg:text-8xl tracking-tighter uppercase leading-[0.85]">
+            <h1 className="font-headline font-black text-6xl lg:text-8xl tracking-tighter uppercase leading-[0.85] text-[var(--fg)]">
               The Daily<br />
-              <span style={{ color: '#363cff' }}>Extraction</span>
+              <span style={{ color: 'var(--blue)' }}>Extraction</span>
             </h1>
           </div>
           <div className="text-right hidden sm:block">
-            <p className="font-mono font-black text-xl uppercase">RECIPE_FEED</p>
-            <p className="font-mono text-sm uppercase text-black/50">{recipes.length} Matches Found</p>
+            <p className="font-mono font-black text-xl uppercase text-[var(--fg)]">RECIPE_FEED</p>
+            <p className="font-mono text-sm uppercase text-[var(--fg-muted)]">{recipes.length} Matches Found</p>
             {session && <p className="font-mono text-[9px] uppercase text-[#22c55e] font-black">Preferences Synchronized ✓</p>}
           </div>
         </div>
@@ -125,34 +126,37 @@ export default async function Home(props: { searchParams: Promise<Record<string,
 
       {recipes.length === 0 ? (
         <div className="brutalist-card p-16 text-center">
-          <p className="font-mono uppercase text-black/50">No experiments found.</p>
+          <p className="font-mono uppercase text-[var(--fg-muted)]">No experiments found.</p>
         </div>
       ) : (
         <section className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
           {recipes.map((recipe, i: number) => {
             const stripe = STRIPE_COLORS[i % STRIPE_COLORS.length]
+            const avgRating = recipe.reviews.length > 0
+              ? recipe.reviews.reduce((sum, r) => sum + r.rating, 0) / recipe.reviews.length
+              : 0
             return (
               <Link key={recipe.recipe_id} href={`/recipe/${recipe.recipe_id}`}
                 className="group block">
-                <div className="brutalist-card brutalist-shadow-hover bg-[#fdf9ee] flex flex-col h-full">
-                  <div className="h-4 border-b-[3px] border-black" style={{ background: stripe }} />
+                <div className="brutalist-card brutalist-shadow-hover flex flex-col h-full">
+                  <div className="h-4 border-b-[3px] border-[var(--border)]" style={{ background: stripe }} />
 
-                  <div className="relative h-56 overflow-hidden border-b-[3px] border-black">
+                  <div className="relative h-56 overflow-hidden border-b-[3px] border-[var(--border)]">
                     {recipe.images[0] ? (
                       <Image src={recipe.images[0].image_url} alt={recipe.title} width={800} height={600}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center bg-[#ece8dd]">
-                        <ChefHat className="w-12 h-12 text-black/20" />
+                      <div className="w-full h-full flex items-center justify-center bg-[var(--bg-muted)]">
+                        <ChefHat className="w-12 h-12 text-[var(--fg-ghost)]" />
                       </div>
                     )}
-                    <div className="absolute top-3 right-3 bg-white border-2 border-black font-mono font-black text-[10px] px-2 py-1 uppercase">
+                    <div className="absolute top-3 right-3 bg-[var(--bg-card)] border-2 border-[var(--border)] font-mono font-black text-[10px] px-2 py-1 uppercase text-[var(--fg)]">
                       #{String(recipe.recipe_id).padStart(4, '0')}
                     </div>
                   </div>
 
                   <div className="p-6 flex flex-col flex-1">
-                    <h3 className="font-headline font-extrabold text-2xl leading-none uppercase tracking-tighter mb-4">
+                    <h3 className="font-headline font-extrabold text-2xl leading-none uppercase tracking-tighter mb-4 text-[var(--fg)]">
                       {recipe.title}
                     </h3>
                     
@@ -160,26 +164,45 @@ export default async function Home(props: { searchParams: Promise<Record<string,
                       <span className="db-tag">Difficulty: {recipe.difficulty_level}</span>
                       <span className="db-tag">Time: {recipe.estimated_time}m</span>
                       {recipe.cuisine && (
-                        <span className="db-tag bg-[#363cff] text-white">{recipe.cuisine.cuisine_name}</span>
+                        <span className="db-tag bg-[var(--blue)] text-white border-[var(--blue)]">{recipe.cuisine.cuisine_name}</span>
                       )}
                     </div>
+
+                    {/* Star rating */}
+                    {avgRating > 0 && (
+                      <div className="flex items-center gap-2 mb-4">
+                        <div className="flex items-center gap-0.5">
+                          {[1, 2, 3, 4, 5].map(s => (
+                            <Star key={s} size={12}
+                              className={s <= Math.round(avgRating)
+                                ? 'fill-[var(--yellow)] text-[var(--yellow)]'
+                                : 'fill-none text-[var(--fg-ghost)]'
+                              }
+                            />
+                          ))}
+                        </div>
+                        <span className="font-mono text-[10px] font-black text-[var(--fg-dim)]">
+                          {avgRating.toFixed(1)} ({recipe.reviews.length})
+                        </span>
+                      </div>
+                    )}
 
                     <div className="flex gap-1 flex-wrap mb-4">
                       {recipe.moods.slice(0, 3).map((m) => (
                         <span key={m.mood_id}
-                          className="font-mono text-[10px] font-bold uppercase border border-black px-2 py-0.5 text-black/60">
+                          className="font-mono text-[10px] font-bold uppercase border border-[var(--border)] px-2 py-0.5 text-[var(--fg-dim)]">
                           {m.mood.mood_name}
                         </span>
                       ))}
                     </div>
 
-                    <p className="font-body text-sm text-black/60 line-clamp-2 mb-6 flex-1">{recipe.description}</p>
+                    <p className="font-body text-sm text-[var(--fg-muted)] line-clamp-2 mb-6 flex-1">{recipe.description}</p>
 
-                    <div className="flex items-center justify-between mt-auto border-t-[2px] border-black pt-3">
-                      <span className="font-mono text-xs uppercase text-black/50 flex items-center gap-1">
+                    <div className="flex items-center justify-between mt-auto border-t-[2px] border-[var(--border)] pt-3">
+                      <span className="font-mono text-xs uppercase text-[var(--fg-muted)] flex items-center gap-1">
                         <Clock className="w-3 h-3" /> {recipe.estimated_time} min
                       </span>
-                      <span className="font-mono text-xs uppercase text-black/50">
+                      <span className="font-mono text-xs uppercase text-[var(--fg-muted)]">
                         {recipe.user.profile?.display_name || recipe.user.username}
                       </span>
                     </div>

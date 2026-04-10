@@ -66,22 +66,22 @@ export default function CreateRecipePage() {
     }
   }
 
-  const fieldClass = "w-full bg-white border-[3px] border-black font-mono text-sm px-4 py-3 focus:outline-none focus:ring-0 focus:border-black uppercase placeholder:text-black/30 placeholder:normal-case"
-  const labelClass = "block font-mono font-black text-xs uppercase mb-2 text-black/70"
+  const fieldClass = "w-full bg-[var(--input-bg)] border-[3px] border-[var(--border)] font-mono text-sm px-4 py-3 focus:outline-none focus:ring-0 uppercase placeholder:text-[var(--fg-ghost)] text-[var(--fg)]"
+  const labelClass = "block font-mono font-black text-xs uppercase mb-2 text-[var(--fg-muted)]"
 
   return (
     <div className="max-w-3xl mx-auto px-6 py-10">
-      <div className="border-b-[6px] border-black pb-6 mb-10">
-        <p className="font-mono text-xs uppercase text-black/40 font-black mb-1">Recipe Table · INSERT</p>
-        <h1 className="font-headline font-black text-6xl uppercase tracking-tighter leading-[0.85]">
+      <div className="border-b-[6px] border-[var(--border)] pb-6 mb-10">
+        <p className="font-mono text-xs uppercase text-[var(--fg-dim)] font-black mb-1">Recipe Table · INSERT</p>
+        <h1 className="font-headline font-black text-6xl uppercase tracking-tighter leading-[0.85] text-[var(--fg)]">
           New<br />Recipe
         </h1>
       </div>
 
       <form action={handleSubmit} className="space-y-8">
         {/* Basic Info */}
-        <div className="brutalist-card bg-[#fdf9ee] overflow-hidden">
-          <div className="h-4 bg-[#ffe500] border-b-[3px] border-black" />
+        <div className="brutalist-card overflow-hidden">
+          <div className="h-4 bg-[var(--yellow)] border-b-[3px] border-[var(--border)]" />
           <div className="p-8 space-y-6">
             <div>
               <label className={labelClass}>Recipe Title *</label>
@@ -109,25 +109,25 @@ export default function CreateRecipePage() {
         </div>
 
         {/* Images */}
-        <div className="brutalist-card bg-[#fdf9ee] overflow-hidden">
-          <div className="h-4 bg-[#363cff] border-b-[3px] border-black" />
+        <div className="brutalist-card overflow-hidden">
+          <div className="h-4 bg-[var(--blue)] border-b-[3px] border-[var(--border)]" />
           <div className="p-8">
             <div className="flex items-center justify-between mb-4">
               <label className={`${labelClass} mb-0`}>Recipe Images</label>
-              <button type="button" onClick={addImage} className="brutalist-btn bg-[#363cff] text-white px-3 py-1.5 text-xs flex items-center gap-1">
+              <button type="button" onClick={addImage} className="brutalist-btn bg-[var(--blue)] text-white px-3 py-1.5 text-xs flex items-center gap-1">
                 <Plus className="w-3 h-3" /> Add Image
               </button>
             </div>
             {images.length === 0 ? (
-              <div className="border-[3px] border-dashed border-black/20 p-8 text-center">
-                <ImageIcon className="w-8 h-8 mx-auto mb-2 text-black/20" />
-                <p className="font-mono text-xs uppercase text-black/40">No images added yet</p>
+              <div className="border-[3px] border-dashed border-[var(--fg-ghost)] p-8 text-center">
+                <ImageIcon className="w-8 h-8 mx-auto mb-2 text-[var(--fg-ghost)]" />
+                <p className="font-mono text-xs uppercase text-[var(--fg-dim)]">No images added yet</p>
               </div>
             ) : (
               <div className="space-y-3">
                 {images.map((img, index) => (
                   <div key={index} className="flex gap-3 items-start">
-                    <span className="font-mono text-[10px] font-black uppercase bg-black text-[#ffe500] border-2 border-black px-2 py-1.5 shrink-0 mt-2">#{img.order}</span>
+                    <span className="font-mono text-[10px] font-black uppercase bg-[var(--fg)] text-[var(--yellow)] border-2 border-[var(--border)] px-2 py-1.5 shrink-0 mt-2">#{img.order}</span>
                     <div className="flex-1">
                       <input
                         type="url"
@@ -137,12 +137,12 @@ export default function CreateRecipePage() {
                         placeholder="https://example.com/image.jpg"
                       />
                       {img.url && (
-                        <div className="mt-2 border-[3px] border-black overflow-hidden h-32 bg-[#ece8dd]">
+                        <div className="mt-2 border-[3px] border-[var(--border)] overflow-hidden h-32 bg-[var(--bg-muted)]">
                           <Image src={img.url} alt={`Preview ${img.order}`} width={400} height={128} className="w-full h-full object-cover" />
                         </div>
                       )}
                     </div>
-                    <button type="button" onClick={() => removeImage(index)} className="brutalist-btn bg-[#b71422] text-white p-2 mt-2">
+                    <button type="button" onClick={() => removeImage(index)} className="brutalist-btn bg-[var(--red)] text-white p-2 mt-2">
                       <X className="w-3 h-3" />
                     </button>
                   </div>
@@ -153,24 +153,24 @@ export default function CreateRecipePage() {
         </div>
 
         {/* Ingredients */}
-        <div className="brutalist-card bg-[#fdf9ee] overflow-hidden">
-          <div className="h-4 bg-[#b71422] border-b-[3px] border-black" />
+        <div className="brutalist-card overflow-hidden">
+          <div className="h-4 bg-[var(--red)] border-b-[3px] border-[var(--border)]" />
           <div className="p-8">
             <div className="flex items-center justify-between mb-4">
               <label className={`${labelClass} mb-0`}>Ingredients</label>
-              <button type="button" onClick={addIngredient} className="brutalist-btn bg-[#b71422] text-white px-3 py-1.5 text-xs flex items-center gap-1">
+              <button type="button" onClick={addIngredient} className="brutalist-btn bg-[var(--red)] text-white px-3 py-1.5 text-xs flex items-center gap-1">
                 <Plus className="w-3 h-3" /> Add Ingredient
               </button>
             </div>
             {ingredients.length === 0 ? (
-              <div className="border-[3px] border-dashed border-black/20 p-8 text-center">
-                <p className="font-mono text-xs uppercase text-black/40">No ingredients added yet</p>
+              <div className="border-[3px] border-dashed border-[var(--fg-ghost)] p-8 text-center">
+                <p className="font-mono text-xs uppercase text-[var(--fg-dim)]">No ingredients added yet</p>
               </div>
             ) : (
               <div className="space-y-3">
                 {ingredients.map((ing, index) => (
                   <div key={index} className="flex gap-3 items-start">
-                    <span className="font-mono text-[10px] font-black uppercase bg-black text-[#ffe500] border-2 border-black px-2 py-1.5 shrink-0 mt-2">#{index + 1}</span>
+                    <span className="font-mono text-[10px] font-black uppercase bg-[var(--fg)] text-[var(--yellow)] border-2 border-[var(--border)] px-2 py-1.5 shrink-0 mt-2">#{index + 1}</span>
                     <div className="flex-1 grid grid-cols-3 gap-3">
                       <input
                         type="text"
@@ -204,7 +204,7 @@ export default function CreateRecipePage() {
                           <option value="piece">piece</option>
                           <option value="pinch">pinch</option>
                         </select>
-                        <button type="button" onClick={() => removeIngredient(index)} className="brutalist-btn bg-[#b71422] text-white p-2">
+                        <button type="button" onClick={() => removeIngredient(index)} className="brutalist-btn bg-[var(--red)] text-white p-2">
                           <X className="w-3 h-3" />
                         </button>
                       </div>
@@ -217,24 +217,24 @@ export default function CreateRecipePage() {
         </div>
 
         {/* Steps */}
-        <div className="brutalist-card bg-[#fdf9ee] overflow-hidden">
-          <div className="h-4 bg-black border-b-[3px] border-black" />
+        <div className="brutalist-card overflow-hidden">
+          <div className="h-4 bg-[var(--fg)] border-b-[3px] border-[var(--border)]" />
           <div className="p-8">
             <div className="flex items-center justify-between mb-4">
               <label className={`${labelClass} mb-0`}>Cooking Steps</label>
-              <button type="button" onClick={addStep} className="brutalist-btn bg-black text-[#ffe500] px-3 py-1.5 text-xs flex items-center gap-1">
+              <button type="button" onClick={addStep} className="brutalist-btn bg-[var(--fg)] text-[var(--yellow)] px-3 py-1.5 text-xs flex items-center gap-1">
                 <Plus className="w-3 h-3" /> Add Step
               </button>
             </div>
             {steps.length === 0 ? (
-              <div className="border-[3px] border-dashed border-black/20 p-8 text-center">
-                <p className="font-mono text-xs uppercase text-black/40">No steps added yet</p>
+              <div className="border-[3px] border-dashed border-[var(--fg-ghost)] p-8 text-center">
+                <p className="font-mono text-xs uppercase text-[var(--fg-dim)]">No steps added yet</p>
               </div>
             ) : (
               <div className="space-y-4">
                 {steps.map((step, index) => (
                   <div key={index} className="flex gap-3 items-start">
-                    <span className="w-8 h-8 shrink-0 border-[3px] border-black bg-[#ffe500] flex items-center justify-center font-mono font-black text-sm mt-2">{index + 1}</span>
+                    <span className="w-8 h-8 shrink-0 border-[3px] border-[var(--border)] bg-[var(--yellow)] flex items-center justify-center font-mono font-black text-sm mt-2 text-black">{index + 1}</span>
                     <div className="flex-1 flex gap-2">
                       <textarea
                         value={step}
@@ -243,7 +243,7 @@ export default function CreateRecipePage() {
                         placeholder={`Step ${index + 1} instructions...`}
                         rows={2}
                       />
-                      <button type="button" onClick={() => removeStep(index)} className="brutalist-btn bg-[#b71422] text-white p-2 mt-1">
+                      <button type="button" onClick={() => removeStep(index)} className="brutalist-btn bg-[var(--red)] text-white p-2 mt-1">
                         <X className="w-3 h-3" />
                       </button>
                     </div>
@@ -255,8 +255,8 @@ export default function CreateRecipePage() {
         </div>
 
         {/* Cuisine & Tags */}
-        <div className="brutalist-card bg-[#fdf9ee] overflow-hidden">
-          <div className="h-4 bg-[#ffe500] border-b-[3px] border-black" />
+        <div className="brutalist-card overflow-hidden">
+          <div className="h-4 bg-[var(--yellow)] border-b-[3px] border-[var(--border)]" />
           <div className="p-8 space-y-6">
             <div>
               <label className={labelClass}>Cuisine</label>
@@ -282,7 +282,7 @@ export default function CreateRecipePage() {
                     key={mood}
                     type="button"
                     onClick={() => setSelectedMoods(prev => prev.includes(mood) ? prev.filter(m => m !== mood) : [...prev, mood])}
-                    className={`brutalist-btn px-3 py-1.5 text-xs ${selectedMoods.includes(mood) ? 'bg-[#ffe500] text-black' : 'bg-white text-black'}`}
+                    className={`brutalist-btn px-3 py-1.5 text-xs ${selectedMoods.includes(mood) ? 'bg-[var(--yellow)] text-black' : 'bg-[var(--bg-card)] text-[var(--fg)]'}`}
                   >
                     {mood}
                   </button>
@@ -297,7 +297,7 @@ export default function CreateRecipePage() {
                     key={diet}
                     type="button"
                     onClick={() => setSelectedDiets(prev => prev.includes(diet) ? prev.filter(d => d !== diet) : [...prev, diet])}
-                    className={`brutalist-btn px-3 py-1.5 text-xs ${selectedDiets.includes(diet) ? 'bg-[#363cff] text-white' : 'bg-white text-black'}`}
+                    className={`brutalist-btn px-3 py-1.5 text-xs ${selectedDiets.includes(diet) ? 'bg-[var(--blue)] text-white' : 'bg-[var(--bg-card)] text-[var(--fg)]'}`}
                   >
                     {diet}
                   </button>
@@ -308,9 +308,9 @@ export default function CreateRecipePage() {
         </div>
 
         {/* Submit */}
-        <div className="pt-4 border-t-[3px] border-black">
+        <div className="pt-4 border-t-[3px] border-[var(--border)]">
           <button type="submit" disabled={submitting}
-            className="w-full brutalist-btn bg-black text-[#ffe500] py-4 text-base uppercase font-headline font-black tracking-widest disabled:opacity-50">
+            className="w-full brutalist-btn bg-[var(--fg)] text-[var(--yellow)] py-4 text-base uppercase font-headline font-black tracking-widest disabled:opacity-50">
             {submitting ? 'Publishing...' : '★ Publish Recipe'}
           </button>
         </div>

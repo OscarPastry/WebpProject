@@ -16,17 +16,17 @@ export async function StatsFooter() {
   ]
 
   return (
-    <footer className="bg-black border-t-[3px] border-black">
+    <footer className="bg-[var(--fg)] border-t-[3px] border-[var(--border)]">
       <div className="max-w-7xl mx-auto px-6 py-6 flex flex-col md:flex-row items-center justify-between gap-4">
-        <div className="border-l-[3px] border-[#ffe500] pl-4">
-          <p className="font-mono font-black text-[#ffe500] text-sm uppercase tracking-widest">Live DB Metrics</p>
-          <p className="font-mono text-white/40 text-[10px] uppercase mt-0.5">ENGINE_STATUS: STABLE</p>
+        <div className="border-l-[3px] border-[var(--yellow)] pl-4">
+          <p className="font-mono font-black text-[var(--yellow)] text-sm uppercase tracking-widest">Live DB Metrics</p>
+          <p className="font-mono text-[var(--bg)] text-[10px] uppercase mt-0.5 opacity-40">ENGINE_STATUS: STABLE</p>
         </div>
         <div className="flex gap-8">
           {stats.map(s => (
-            <div key={s.label} className="text-center border-l border-white/10 pl-6 first:border-0 first:pl-0">
-              <div className="font-headline font-black text-2xl text-[#ffe500]">{s.value.toLocaleString()}</div>
-              <div className="font-mono text-white/50 text-[10px] uppercase mt-0.5">{s.label}</div>
+            <div key={s.label} className="text-center border-l border-[var(--bg)]/10 pl-6 first:border-0 first:pl-0">
+              <div className="font-headline font-black text-2xl text-[var(--yellow)]">{s.value.toLocaleString()}</div>
+              <div className="font-mono text-[var(--bg)] text-[10px] uppercase mt-0.5 opacity-50">{s.label}</div>
             </div>
           ))}
         </div>

@@ -24,17 +24,17 @@ export default function FilterBar({ cuisines, moods, searchParams, activeFilters
       <div className="flex items-center gap-2 flex-wrap">
         {activeFilters.map(f => (
           <Link key={f.key} href={buildUrl(f.key, f.value)}
-            className="flex items-center gap-1 font-mono text-[10px] font-black uppercase bg-black text-[#ffe500] border-2 border-black px-3 py-1.5">
+            className="flex items-center gap-1 font-mono text-[10px] font-black uppercase bg-[var(--fg)] text-[var(--yellow)] border-2 border-[var(--border)] px-3 py-1.5">
             {f.key}: {f.value}
             <X className="w-3 h-3" />
           </Link>
         ))}
         <button onClick={() => setIsOpen(!isOpen)}
-          className={`brutalist-btn flex items-center gap-2 px-4 py-2 text-xs ${isOpen ? 'bg-[#ffe500] text-black' : 'bg-black text-[#ffe500]'}`}>
+          className={`brutalist-btn flex items-center gap-2 px-4 py-2 text-xs ${isOpen ? 'bg-[var(--yellow)] text-black' : 'bg-[var(--fg)] text-[var(--yellow)]'}`}>
           <Filter className="w-4 h-4" />
           Filters
           {activeFilters.length > 0 && (
-            <span className="bg-[#b71422] text-white text-[9px] font-black w-5 h-5 flex items-center justify-center rounded-full">
+            <span className="bg-[var(--red)] text-white text-[9px] font-black w-5 h-5 flex items-center justify-center rounded-full">
               {activeFilters.length}
             </span>
           )}
@@ -42,15 +42,15 @@ export default function FilterBar({ cuisines, moods, searchParams, activeFilters
       </div>
 
       {isOpen && (
-        <div className="mt-4 brutalist-card bg-[#fdf9ee] overflow-hidden border-[3px] border-black">
-          <div className="h-3 bg-[#ffe500] border-b-[3px] border-black" />
+        <div className="mt-4 brutalist-card overflow-hidden">
+          <div className="h-3 bg-[var(--yellow)] border-b-[3px] border-[var(--border)]" />
           <div className="p-6 space-y-5">
             <div>
-              <label className="block font-mono font-black text-xs uppercase mb-2 text-black/70">Difficulty</label>
+              <label className="block font-mono font-black text-xs uppercase mb-2 text-[var(--fg-muted)]">Difficulty</label>
               <div className="flex gap-2 flex-wrap">
                 {['Easy', 'Medium', 'Hard'].map(d => (
                   <Link key={d} href={buildUrl('difficulty', d)}
-                    className={`brutalist-btn px-4 py-1.5 text-xs ${searchParams.difficulty === d ? 'bg-[#ffe500] text-black' : 'bg-white text-black'}`}>
+                    className={`brutalist-btn px-4 py-1.5 text-xs ${searchParams.difficulty === d ? 'bg-[var(--yellow)] text-black' : 'bg-[var(--bg-card)] text-[var(--fg)]'}`}>
                     {d}
                   </Link>
                 ))}
@@ -58,11 +58,11 @@ export default function FilterBar({ cuisines, moods, searchParams, activeFilters
             </div>
 
             <div>
-              <label className="block font-mono font-black text-xs uppercase mb-2 text-black/70">Cuisine</label>
+              <label className="block font-mono font-black text-xs uppercase mb-2 text-[var(--fg-muted)]">Cuisine</label>
               <div className="flex gap-2 flex-wrap">
                 {cuisines.map(c => (
                   <Link key={c.cuisine_name} href={buildUrl('cuisine', c.cuisine_name)}
-                    className={`brutalist-btn px-4 py-1.5 text-xs ${searchParams.cuisine === c.cuisine_name ? 'bg-[#363cff] text-white' : 'bg-white text-black'}`}>
+                    className={`brutalist-btn px-4 py-1.5 text-xs ${searchParams.cuisine === c.cuisine_name ? 'bg-[var(--blue)] text-white' : 'bg-[var(--bg-card)] text-[var(--fg)]'}`}>
                     {c.cuisine_name}
                   </Link>
                 ))}
@@ -70,11 +70,11 @@ export default function FilterBar({ cuisines, moods, searchParams, activeFilters
             </div>
 
             <div>
-              <label className="block font-mono font-black text-xs uppercase mb-2 text-black/70">Mood</label>
+              <label className="block font-mono font-black text-xs uppercase mb-2 text-[var(--fg-muted)]">Mood</label>
               <div className="flex gap-2 flex-wrap">
                 {moods.map(m => (
                   <Link key={m.mood_name} href={buildUrl('mood', m.mood_name)}
-                    className={`brutalist-btn px-4 py-1.5 text-xs ${searchParams.mood === m.mood_name ? 'bg-[#b71422] text-white' : 'bg-white text-black'}`}>
+                    className={`brutalist-btn px-4 py-1.5 text-xs ${searchParams.mood === m.mood_name ? 'bg-[var(--red)] text-white' : 'bg-[var(--bg-card)] text-[var(--fg)]'}`}>
                     {m.mood_name}
                   </Link>
                 ))}
@@ -82,8 +82,8 @@ export default function FilterBar({ cuisines, moods, searchParams, activeFilters
             </div>
 
             {activeFilters.length > 0 && (
-              <div className="pt-3 border-t-[2px] border-black">
-                <Link href="/" className="brutalist-btn bg-black text-[#ffe500] px-4 py-2 text-xs">
+              <div className="pt-3 border-t-[2px] border-[var(--border)]">
+                <Link href="/" className="brutalist-btn bg-[var(--fg)] text-[var(--yellow)] px-4 py-2 text-xs">
                   Clear All Filters
                 </Link>
               </div>
